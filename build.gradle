@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("8")
+    targetCompatibility = JavaVersion.toVersion("8")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest{
+        attributes (
+            "Main-Class" : "org.example.Main"
+        )
+    }
+}
+
+task createJar {
+    createJar.dependsOn jar
+    copy {
+        from jar
+        into "$projectDir/docker"
+        rename { String name ->
+            name.replace(name, "project.jar")
+        }
+    }
+}
+
+task docker(dependsOn: createJar, type: Exec) {
+    commandLine "bash", "./docker/script.sh"
+}
+
